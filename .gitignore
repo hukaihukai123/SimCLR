@@ -1,0 +1,105 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# =========================
+# Virtual environments
+# =========================
+.venv/
+venv/
+env/
+ENV/
+
+# =========================
+# IDE / Editor
+# =========================
+.vscode/
+.idea/
+*.code-workspace
+
+# =========================
+# Environment variables
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# CIFAR-10 and generated data
+# =========================
+data/*
+!data/README.md
+
+# 注意：不要忽略 splits/
+# 固定的数据划分索引应提交到 Git
+
+# =========================
+# Model checkpoints
+# =========================
+checkpoints/
+outputs/
+*.pt
+*.pth
+*.ckpt
+*.onnx
+
+# =========================
+# Training logs
+# =========================
+logs/
+runs/
+wandb/
+lightning_logs/
+tensorboard/
+
+# =========================
+# Temporary experiment files
+# =========================
+tmp/
+temp/
+cache/
+*.tmp
+*.log
+
+# =========================
+# Large intermediate arrays
+# =========================
+*.npy
+*.npz
+*.pkl
+*.pickle
+
+# =========================
+# Generated reports
+# =========================
+report/*.aux
+report/*.log
+report/*.out
+report/*.toc
+report/*.synctex.gz
+
+# =========================
+# Jupyter
+# =========================
+.ipynb_checkpoints/
+
+# =========================
+# OS generated files
+# =========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 数据集
+data/
+*.tar.gz
+*.zip
+
