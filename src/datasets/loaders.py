@@ -7,7 +7,11 @@ import torch
 from torch.utils.data import DataLoader, Subset
 from torchvision.datasets import CIFAR10
 
-from src.augmentations import build_evaluation_transform, build_simclr_transform
+from src.augmentations import (
+    build_classification_train_transform,
+    build_evaluation_transform,
+    build_simclr_transform,
+)
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -54,5 +58,72 @@ def build_feature_loader(split_name: str, batch_size: int = 512,
     return DataLoader(
         Subset(dataset, split[split_name]), batch_size=batch_size, shuffle=False,
         num_workers=num_workers, pin_memory=torch.cuda.is_available(), drop_last=False,
+        persistent_workers=num_workers > 0,
+    )
+
+
+def build_labeled_loader(
+    split_name: str,
+    batch_size: int = 128,
+    num_workers: int = 0,
+    split_seed: int = 42,
+    run_seed: int = 42,
+    training: bool = True,
+) -> DataLoader:
+
+    valid_splits = {
+        "1_percent",
+        "10_percent",
+        "100_percent",
+        "validation",
+    }
+
+    if split_name not in valid_splits:
+        raise ValueError(
+            f"Unknown split_name {split_name!r}. "
+            f"Expected one of {sorted(valid_splits)}."
+        )
+    split_path = (
+        PROJECT_ROOT
+        / "splits"
+        / f"cifar10_seed{split_seed}.json"
+    )
+    if not split_path.exists():
+        raise FileNotFoundError(f"Split file not found: {split_path}")
+
+    with split_path.open("r", encoding="utf-8") as file:
+        split_data = json.load(file)
+
+    if split_name == "validation":
+        indices = split_data["validation"]
+    else:
+        indices = split_data["labeled"][split_name]
+
+    if training:
+        transform = build_classification_train_transform()
+    else:
+        transform = build_evaluation_transform()
+    generator = torch.Generator().manual_seed(run_seed)
+    dataset = CIFAR10(
+        root=str(PROJECT_ROOT / "data" / "raw"),
+        train=True,
+        download=False,
+        transform=transform,
+    )
+
+    subset = Subset(
+        dataset,
+        indices,
+    )
+
+    return DataLoader(
+        subset,
+        batch_size=batch_size,
+        shuffle=training,
+        num_workers=num_workers,
+        pin_memory=torch.cuda.is_available(),
+        drop_last=False,
+        worker_init_fn=_seed_worker if training else None,
+        generator=generator if training else None,
         persistent_workers=num_workers > 0,
     )

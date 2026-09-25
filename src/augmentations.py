@@ -151,3 +151,20 @@ def denormalize_cifar10(tensor: torch.Tensor) -> torch.Tensor:
     image = tensor * std + mean
 
     return image.clamp(0.0, 1.0)
+
+
+def build_classification_train_transform() -> transforms.Compose:
+    return transforms.Compose(
+        [
+            transforms.RandomCrop(
+                size=32,
+                padding=4,
+            ),
+            transforms.RandomHorizontalFlip(p=0.5),
+            transforms.ToTensor(),
+            transforms.Normalize(
+                mean=CIFAR10_MEAN,
+                std=CIFAR10_STD,
+            ),
+        ]
+    )
